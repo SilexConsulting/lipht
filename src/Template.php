@@ -9,7 +9,6 @@ use DOMDocumentType;
 use DOMElement;
 use DOMText, DOMComment, DOMProcessingInstruction;
 
-
 trait Lifty {
 	
 	function bind(){
@@ -26,7 +25,6 @@ trait Lifty {
 		if ($this->hasAttributes()) {
 			foreach ($this->attributes as $index => $attr){
 				if ($index == 'clearable'){
-					//$this->parentNode->removeChild($this);
 					$arr[] = $this;
 				}
 				if ($index == 'lift'){
@@ -37,16 +35,10 @@ trait Lifty {
 					}
 					$ret = $class::{$method}($this);
 					if ($this->parentNode){
-						//$this->parentNode->replaceChild($ret, $this);
 						$this->parentNode->insertBefore($ret, $this);
-						//$this->parentNode->removeChild($this);
 						if  (!in_array($this, $arr)) {
 							$arr[] = $this;
 						}
-					} else {
-						echo "wtf went wrong?";
-						print_r($ret->nodeName);
-						print_r($ret->nodeValue);
 					}
 				}
 			}
