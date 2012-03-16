@@ -8,6 +8,7 @@ use DOMNode;
 use DOMDocumentType;
 use DOMElement;
 use DOMText, DOMComment, DOMProcessingInstruction;
+use Exception;
 
 trait Lifty {
 	
@@ -28,14 +29,20 @@ trait Lifty {
 					$arr[] = $this;
 				}
 				if ($index == 'lift'){
-					$val = $attr->value;
-					list($class, $method) = explode('::', $val);
+					$snippet = $attr->value;
+					$newNode = null;
+					list($class, $method) = explode('::', $snippet);
 					if (!class_exists($class)) {
-						Loader::loadSnippet($class);
+						try {
+							Loader::loadSnippet($class);
+							$newNode = $class::{$method}($this);
+						} catch (Exception $e) {
+							$newNode = $this->ownerDocument->createElement('text', $e->getMessage());
+						}
+				
 					}
-					$ret = $class::{$method}($this);
-					if ($this->parentNode){
-						$this->parentNode->insertBefore($ret, $this);
+					if ($newNode && $this->parentNode){
+						$this->parentNode->insertBefore($newNode, $this);
 						if  (!in_array($this, $arr)) {
 							$arr[] = $this;
 						}
