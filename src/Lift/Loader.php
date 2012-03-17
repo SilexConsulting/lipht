@@ -9,7 +9,7 @@ class Loader {
 	
 	static function loadSnippet($className){
 		if (!class_exists($className)){
-			require "snippets/$className.php";
+			require __DIR__ . "/snippets/$className.php";
 		}
 	} 
 }

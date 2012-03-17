@@ -1,4 +1,5 @@
 <?php 
+
 class Menu{
 	function Top($node){
 		$newNode = $node->ownerDocument->createElement('child', 'top Item');
