@@ -10,12 +10,16 @@ use DOMElement;
 use DOMText, DOMComment, DOMProcessingInstruction;
 use Exception;
 
+trait LiftPartial {
+
+}
+
 trait Lifty {
 	private $partials = [];
 	function addToPartial($templateName, $node){
 		$this->partials[$templateName] = $node;
 	}
-	
+
 	function isPartialTemplateStart(){
 		if ($pData = $this->getPartialTemplateData()){
 			list($class, $template, $pos) = $pData;
@@ -36,7 +40,7 @@ trait Lifty {
 		if (!strstr($this->nodeValue, '::')) return false;
 		return explode('::', $this->nodeValue);
 	}
-	
+
 	function bind(){
 		$arr = [];
 		if ($this->hasChildNodes()) {
@@ -116,20 +120,34 @@ class LiftDocument extends DOMDocument{
 	use Lifty;
 } 
 
-class LiftTemplate extends DOMDocument{
+class LiftTemplate {
 	private $html;
-	public function __construct($document){
-		$doc = new LiftDocument();
-		$doc->registerNodeClass('DOMDocument', 'Lift\LiftDocument');
-		$doc->registerNodeClass('DOMNode', 'Lift\LiftNode');
-		$doc->registerNodeClass('DOMElement', 'Lift\LiftElement');
-		$doc->registerNodeClass('DOMText', 'Lift\LiftText');
-		$doc->registerNodeClass('DOMComment', 'Lift\LiftComment');
-		$doc->registerNodeClass('DOMDocumentType', 'Lift\LiftDocumentType');
-		$doc->registerNodeClass('DOMProcessingInstruction', 'Lift\LiftProcessingInstruction');
-		$doc->LoadHTMLFile($document);
-		$doc->bind();
-		$this->html = $doc->saveHTML();
+	private $doc;
+	private function loadHtml($html){
+		if ($html instanceof LiftHTMLFile){
+			$doc->loadHTML($html->getHTML());
+		} else if ($html instanceof String){
+			$doc->loadHTML($html);
+		}
+		return $this;
+	}
+
+	public function __construct(){
+		$this->doc = new LiftDocument();
+		$this->doc->registerNodeClass('DOMDocument', 'Lift\LiftDocument');
+		$this->doc->registerNodeClass('DOMNode', 'Lift\LiftNode');
+		$this->doc->registerNodeClass('DOMElement', 'Lift\LiftElement');
+		$this->doc->registerNodeClass('DOMText', 'Lift\LiftText');
+		$this->doc->registerNodeClass('DOMComment', 'Lift\LiftComment');
+		$this->doc->registerNodeClass('DOMDocumentType', 'Lift\LiftDocumentType');
+		$this->doc->registerNodeClass('DOMProcessingInstruction', 'Lift\LiftProcessingInstruction');
+	}
+
+	public function bind($html){
+		$this->loadHtml($html);
+		$this->doc->bind();
+		$this->html = $this->doc->saveHTML();
+		return $this;
 	}
 	
 	public function getHTML(){
