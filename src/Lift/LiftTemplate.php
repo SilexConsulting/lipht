@@ -15,32 +15,6 @@ trait LiftPartial {
 }
 
 trait Lifty {
-	private $partials = [];
-	function addToPartial($templateName, $node){
-		$this->partials[$templateName] = $node;
-	}
-
-	function isPartialTemplateStart(){
-		if ($pData = $this->getPartialTemplateData()){
-			list($class, $template, $pos) = $pData;
-			if (trim($class) == 'lift' && trim($pos) == 'start'){
-				return $template;
-			}
-		}
-	}
-
-	function isPartialTemplateEnd($templateName){
-		if ($pData = $this->getPartialTemplateData()){
-			list($class, $template, $pos) = $pData;
-			return (trim($class) == 'lift' && trim($pos) == 'end' && $template == $templateName);
-		}
-	}
-
-	function getPartialTemplateData(){
-		if (!strstr($this->nodeValue, '::')) return false;
-		return explode('::', $this->nodeValue);
-	}
-
 	function bind(){
 		$arr = [];
 		if ($this->hasChildNodes()) {
@@ -53,20 +27,6 @@ trait Lifty {
 			$arr = [];
 		}
 		$template = '';
-		//save partial templates unprocessed for use elsewhere before processing them
-		if ($this instanceof LiftComment && $templateName = $this->isPartialTemplateStart()) {
-			//from this point in we need to put all nodes and their children into a partial template
-			
-			$this->addToPartial($template, $this);
-			$node = $this->nextSibling;
-			while ($node && ($node instanceof LiftComment) && $node->isPartialTemplateEnd($templateName)){
-				echo $node->nodeName . "::" . $node->nodeValue . "<br/>";
-				$this->addToPartial($template, $node);
-				$node = $node->nextSibling;
-			}
-			
-			$this->addToPartial($template, $this);
-		}
 		if ($this->hasAttributes()) {
 			foreach ($this->attributes as $index => $attr){
 				if ($index == 'clearable'){
