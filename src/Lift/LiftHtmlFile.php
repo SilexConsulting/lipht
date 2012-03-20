@@ -33,22 +33,31 @@ class LiftHTMLFile {
 
 	public function getPartials(){
 		$this->loadHtml();
-		if (true){
-			$start = 0;
-			$end = 0;
-			while ($start = $this->containsPartials($end)){
-				$end = strpos($this->html, '<!-- Lift::', $start+1);
-				$eot = strpos($this->html, '-->', $start);
-				$tag = trim(substr($this->html, $start + 4, $eot - $start -4));
-				$templateName = $this->getPartialName($tag);
-				$end = strpos($this->html, '-->', $end) + 3;
-				$partial = substr($this->html, $start, $end - $start);
-				if (!array_key_exists($templateName,$this->partials)){
-					$this->partials[$templateName] = $partial;
-				}
-				$start = $end;
-			}
+		$start = 0;
+		while ($start = $this->containsPartials($start)){
+			$start = $this->extractPartial($start);
 		}
 		return $this->partials;
 	}
+	
+	private function extractPartial($start){
+		//find the start of the lift comment signifying the start of a partial
+		$regex = '/<!--[ ]+?Lift::([\:]+?)::Start[ ]+?-->([.]*)<!--[ ]+?Lift::\1::End[ ]+?-->/';
+		
+		$end = strpos($this->html, '<!-- Lift::', $start+1);
+		//find the end of the start lift comment
+		$eot = strpos($this->html, '-->', $start);
+		//extract the lift comment and the partial name
+		$liftCommment = trim(substr($this->html, $start + 4, $eot - $start -4));
+		$templateName = $this->getPartialName($liftCommment);
+		//Find the end of the closing lift comment
+		$end = strpos($this->html, '-->', $end) + 3;
+		//extract the partial.
+		$partial = substr($this->html, $start, $end - $start);
+		
+		if (!array_key_exists($templateName,$this->partials)){
+			$this->partials[$templateName] = $partial;
+		}
+		return $end;
+	} 
 }
