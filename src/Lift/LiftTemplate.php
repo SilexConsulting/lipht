@@ -85,9 +85,14 @@ class LiftTemplate {
 	private $doc;
 	private function loadHtml($html){
 		if ($html instanceof LiftHTMLFile){
-			$doc->loadHTML($html->getHTML());
+			$this->doc->loadHTML($html->getHTML());
 		} else if ($html instanceof String){
-			$doc->loadHTML($html);
+			if (file_exists($html)){
+				$this->doc->loadHTMLFile($html);
+			} else {
+				$this->doc->loadHTML($html);
+			}
+			
 		}
 		return $this;
 	}
@@ -109,8 +114,9 @@ class LiftTemplate {
 		$this->html = $this->doc->saveHTML();
 		return $this;
 	}
-	
-	public function getHTML(){
+
+	public function getHtml(){
 		return $this->html;
 	}
+
 }

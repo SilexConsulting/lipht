@@ -2,19 +2,26 @@
 namespace Lift\Tests;
 
 use Lift\LiftTemplate;
+use Lift\LiftHTMLFile;
 
 
-class TempalteTest extends \PHPUnit_Framework_TestCase
+include "tests/snippets/Menu.php";
+
+class TemplateTest extends \PHPUnit_Framework_TestCase
 {
-	public function testLoadHtmlFile(){
-		return true;
-		//include 'snippets/Menu.php';
-		$mock = $this->getMock('Menu');
- 		$mock->expects($this->exactly(1))
+	public function testThatSnippetsGetCalled(){
+		$this->getMockClass('Menu', ['Top', 'Item'], [], 'MenuMock');
+		\MenuMock::staticExpects($this->exactly(1))
 			->method('Top');
- 		$mock->expects($this->exactly(1))
- 			->method('Item');	
+		\MenuMock::staticExpects($this->exactly(1))
+			->method('Item');	
 		$template = new LiftTemplate();
-		$template->bind(__DIR__ . '/data/homepage.html');
+		$template->bind(new LiftHtmlFile(__DIR__ . '/data/mocktest.html'));
+		
+	}
+
+	public function testThatLiftIncludesWork(){
+		$template = new LiftTemplate();
+		$template->bind(new LiftHtmlFile(__DIR__ . '/data/SimplePartials.html'));
 	}
 }

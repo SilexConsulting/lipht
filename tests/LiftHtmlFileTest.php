@@ -2,6 +2,7 @@
 namespace Lift\Tests;
 
 use Lift\LiftHtmlFile;
+use Lift\LiftTemplateRegistry;
 
 
 class LiftHtmlFileTest extends \PHPUnit_Framework_TestCase
@@ -18,7 +19,8 @@ class LiftHtmlFileTest extends \PHPUnit_Framework_TestCase
 		$head = <<< 'EOD'
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<lift include::Title />
+<!-- global head template -->
+<lift:include template="Title" />
 </head>
 EOD;
 		$foot = <<< 'EOD'
@@ -27,10 +29,16 @@ EOD;
     </div>
 EOD;
 		$filename = __DIR__ . '/data/SimplePartials.html';
-		$html = new LiftHTMLFile($filename);
-		$partials = $html->getPartials();
-		$this->assertEquals(3, count($partials));
+		$x = new LiftHTMLFile($filename);
+		$templateRegistry = LiftTemplateRegistry::getInstance();
+		$templateRegistry->scanForPartials();
+		$html = $x->getHtml();
+		
+		
+		$partials =  $templateRegistry->partials;
+		$this->assertEquals(5, count($partials));
 		$this->assertEquals($head, $partials['Head']);
 		$this->assertEquals($foot, $partials['Footer']);
 	}
+
 }
